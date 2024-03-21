@@ -11,11 +11,13 @@ int main(int, char** argv)
     Mesh* mesh = new Mesh();
     Painter* painter = new Painter();
 
-    char filename[] = "0.off";
+    char filename[] = "horse0.off";
     mesh->loadOff(filename);
 
     // Calculate geodesic distance matrix
     mesh->calculateGeodesicDistanceMatrix();
+
+    mesh->printDistanceMatrixToFile("horseOutputMatrix.txt");
 
     SoSeparator* root = new SoSeparator();
     root->ref();
@@ -24,7 +26,7 @@ int main(int, char** argv)
     root->addChild(painter->getShapeSep(mesh));
 
     // Draw geodesic path between two vertices (change start and end indices as needed)
-    painter->drawGeodesicPath(root, mesh, 0, 5);
+    painter->drawGeodesicPath(root, mesh, 4, 60);
 
     // Add painter to the scene
     root->addChild(painter->getShapeSep(mesh));

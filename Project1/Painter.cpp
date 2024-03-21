@@ -52,7 +52,7 @@ void Painter::drawGeodesicPath(SoSeparator* sep, Mesh* mesh, int startIdx, int e
 
     std::vector<int>& path = mesh->verts[endIdx]->geodesicPath; // Get geodesic path
 
-    for (int i = 0; i < path.size(); i++)
+    for (size_t i = 0; i < path.size(); i++)
     {
         co->point.set1Value(i, mesh->verts[path[i]]->coords[0], mesh->verts[path[i]]->coords[1], mesh->verts[path[i]]->coords[2]);
     }

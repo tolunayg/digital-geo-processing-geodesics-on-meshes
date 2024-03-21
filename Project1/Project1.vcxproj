@@ -144,6 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="0.off" />
+    <None Include="horse0.off" />
+    <None Include="man0.off" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

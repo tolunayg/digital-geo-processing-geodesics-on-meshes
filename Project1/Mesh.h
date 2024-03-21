@@ -12,7 +12,7 @@ struct Vertex
     std::vector<int> triList;
     std::vector<int> edgeList;
 
-    int distance; // Distance from the source vertex in Dijkstra's algorithm
+    float distance; // Distance from the source vertex in Dijkstra's algorithm
     int previous; // Previous vertex in the shortest path in Dijkstra's algorithm
     std::vector<int> geodesicPath; // Geodesic path from the source vertex to this vertex
     
@@ -47,6 +47,9 @@ private:
     void addVertex(float x, float y, float z);
     bool makeVertsNeighbor(int v1i, int v2i);
 
+    static const int MAX_VERTICES = 502; // Adjust the maximum number of vertices as needed
+    int geodesicDistanceMatrix[MAX_VERTICES][MAX_VERTICES];
+
 public:
     std::vector<Vertex*> verts;
     std::vector<Triangle*> tris;
@@ -57,4 +60,6 @@ public:
     void loadOff(const char* name);
     void dijkstra(int sourceIdx);
     void calculateGeodesicDistanceMatrix();
+    float distanceBetweenVertices(Vertex* v1, Vertex* v2); // Declaration of the distanceBetweenVertices function
+    void printDistanceMatrixToFile(const char* filename);
 };

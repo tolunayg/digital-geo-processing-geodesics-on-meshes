@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include <limits>
 #include <queue>
+#include <cmath>
+#include <fstream> 
 
 Edge::Edge(int id, int v1, int v2) : idx(id), v1i(v1), v2i(v2) {}
 
@@ -12,6 +14,7 @@ void Edge::computeLength(const std::vector<Vertex*>& verts)
 
     length = std::sqrt(dx * dx + dy * dy + dz * dz);
 }
+
 
 
 void Mesh::loadOff(const char* name)
@@ -156,6 +159,17 @@ struct CompareDist
     }
 };
 
+// Function to calculate the Euclidean distance between two vertices
+float Mesh::distanceBetweenVertices(Vertex* v1, Vertex* v2)
+{
+    // Calculate the Euclidean distance between two vertices
+    float dx = v2->coords[0] - v1->coords[0];
+    float dy = v2->coords[1] - v1->coords[1];
+    float dz = v2->coords[2] - v1->coords[2];
+
+    return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
 void Mesh::dijkstra(int sourceIdx)
 {
     std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, CompareDist> pq;
@@ -182,7 +196,8 @@ void Mesh::dijkstra(int sourceIdx)
             int v = *it;
 
             // Calculate new distance to vertex v
-            int alt = verts[u]->distance + 1; // Assuming unit edge weight
+            float edgeLength = distanceBetweenVertices(verts[u], verts[v]); // Calculate the actual length of the edge
+            float alt = verts[u]->distance + static_cast<float>(edgeLength); // Use the actual edge length
 
             // Update distance and previous vertex if shorter path found
             if (alt < verts[v]->distance)
@@ -198,32 +213,43 @@ void Mesh::dijkstra(int sourceIdx)
 
 void Mesh::calculateGeodesicDistanceMatrix()
 {
-    // Clear geodesic paths and distances
-    for (size_t i = 0; i < verts.size(); ++i)
+    // Initialize geodesic distance matrix
+    for (int i = 0; i < MAX_VERTICES; ++i)
     {
-        Vertex* v = verts[i];
-
-        v->distance = std::numeric_limits<int>::max();
-        v->previous = -1;
-        v->geodesicPath.clear();
-    }
-
-    // Calculate geodesic distance matrix
-    for (int i = 0; i < verts.size(); ++i)
-    {
-        dijkstra(i); // Run Dijkstra's algorithm from vertex i
-
-        // Store distances and geodesic paths
-        for (int j = 0; j < verts.size(); ++j)
+        for (int j = 0; j < MAX_VERTICES; ++j)
         {
-            verts[j]->distance = verts[j]->distance; // Store the distance
-            int currVertex = j;
-            while (currVertex != -1) // Store the geodesic path
-            {
-                verts[j]->geodesicPath.push_back(currVertex);
-                currVertex = verts[currVertex]->previous;
-            }
-            std::reverse(verts[j]->geodesicPath.begin(), verts[j]->geodesicPath.end()); // Reverse the path to get correct order
+            geodesicDistanceMatrix[i][j] = INT_MAX; // Initialize all distances to "infinity"
         }
     }
+
+    // Calculate geodesic distances using Dijkstra's algorithm for each vertex
+    for (int sourceIdx = 0; sourceIdx < verts.size(); ++sourceIdx)
+    {
+        dijkstra(sourceIdx); // Run Dijkstra's algorithm from the current source vertex
+
+        // Store the calculated distances in the geodesic distance matrix
+        for (int targetIdx = 0; targetIdx < verts.size(); ++targetIdx)
+        {
+            geodesicDistanceMatrix[sourceIdx][targetIdx] = verts[targetIdx]->distance;
+        }
+    }
+}
+
+void Mesh::printDistanceMatrixToFile(const char* filename)
+{
+    std::ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        std::cerr << "Unable to open file for writing: " << filename << std::endl;
+        return;
+    }
+
+    // Write the distance matrix to the file
+    for (int i = 0; i < verts.size(); ++i) {
+        for (int j = 0; j < verts.size(); ++j) {
+            outfile << geodesicDistanceMatrix[i][j] << " ";
+        }
+        outfile << std::endl;
+    }
+
+    outfile.close();
 }
