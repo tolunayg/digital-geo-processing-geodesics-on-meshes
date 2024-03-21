@@ -17,7 +17,7 @@ int main(int, char** argv)
     // Calculate geodesic distance matrix
     mesh->calculateGeodesicDistanceMatrix();
 
-    mesh->printDistanceMatrixToFile("horseOutputMatrix.txt");
+    mesh->printDistanceMatrixToFile("horseMatrix.txt");
 
     SoSeparator* root = new SoSeparator();
     root->ref();
